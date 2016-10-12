@@ -8,6 +8,10 @@ export let urlConfig = {
 
 export function url(value: string, data?: Object): string {
     let result = urlConfig.baseUrl + value;
-    return replace(result, data);
+    if(data === null){
+        return result;
+    }
+    let param = data as Object;
+    return replace(result, param);
 }
 

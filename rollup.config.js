@@ -11,8 +11,8 @@ const moduleName = camelCase(pkg.name);
 
 appendFileSync('./built/index.d.ts', `export as namespace ${moduleName};\n`);
 
-console.log('moduleId:', moduleId);
-console.log('moduleName:', moduleName);
+// console.log('moduleId:', moduleId);
+// console.log('moduleName:', moduleName);
 
 export default {
   entry: 'built/main.js',
@@ -21,9 +21,11 @@ export default {
   moduleName,
 
   /// global dependecies
-//   option: {
-//       globals: ['ko', '$', '_'],
-//   },
+  globals: {
+    knockout: 'ko',
+    lodash: '_',
+    jquery: '$'
+  },
 
   plugins: [
     // nodeResolve({

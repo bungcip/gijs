@@ -4,7 +4,16 @@
     (factory((global.gi = global.gi || {}),global.ko,global.$));
 }(this, (function (exports,ko,$) { 'use strict';
 
-// string replacer
+/**
+ * String Replacer
+ * Helper function to create simple template string
+ * Example:
+ *
+ * gi.replace("hello {name}", {
+ *   name: 'jane'
+ * })
+ *
+ */
 function replace(str, dict) {
     for (var key in dict) {
         str = str.replace("{" + key + "}", ko.unwrap(dict[key]));
@@ -18,20 +27,24 @@ let urlConfig = {
 };
 function url(value, data) {
     let result = urlConfig.baseUrl + value;
-    return replace(result, data);
+    if (data === null) {
+        return result;
+    }
+    let param = data;
+    return replace(result, param);
 }
 
-const MODAL_ROOT_NAME = "bs-modal-root-{id}";
+var MODAL_ROOT_NAME = "bs-modal-root-{id}";
 /// menampilkan dialog bootstrap dari sebuah template
 function _createBsModal() {
-    let bsTemplate = $('<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content">' +
+    var bsTemplate = $('<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content">' +
         '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title"></h4></div>' +
         '<div class="modal-body"></div>' +
         '<div class="modal-footer">' +
         '  <!-- ko foreach: $buttons -->' +
         '    <button type="button" class="btn" data-bind="click: $parent.ok, html: $data.html, css: $data.className">Ok</button>' +
         '  <!-- /ko -->' +
-        '  <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>' +
+        '<button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>' +
         '</div>' +
         '</div></div></div>');
     return bsTemplate;
@@ -39,8 +52,8 @@ function _createBsModal() {
 /// ambil div root untuk menaruh elemen bootstrap modal
 function _getModalRoot(counter) {
     counter = counter || 0;
-    let id = replace(MODAL_ROOT_NAME, { id: counter });
-    let dom = document.getElementById(id);
+    var id = MODAL_ROOT_NAME.replace("{id}", counter);
+    var dom = document.getElementById(id);
     /// insert <div> ke dalam <body> bila belum ada
     if (dom === null) {
         dom = document.createElement('div');
@@ -48,6 +61,7 @@ function _getModalRoot(counter) {
         $("body").append(dom);
     }
     else if ($(dom).find('<div>').length !== 0) {
+        console.log("sudah terisi id ", id, dom.getElementsByTagName('div').length);
         return _getModalRoot(counter + 1);
     }
     return $(dom);
@@ -55,35 +69,35 @@ function _getModalRoot(counter) {
 /// fungsi untuk menampilkan modal bootstrap
 /// ke layar secara dinamis mengembalikan objek Promise
 function modal(config, model, counter) {
-    let promise = new Promise(function (resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
         /// persiapkan DOM untuk modal dialog
-        let $root = _getModalRoot(counter);
-        let element = _createBsModal();
+        var $root = _getModalRoot(counter);
+        var element = _createBsModal();
         /// set modal minimal objek kosong
         model = model || {};
         /// reset binding yang ada di DOM sebelum menghapus data
         //        ko.cleanNode($root[0]);
         /// insert template
         /// sekarang berasumsi config === string
-        let template = document.querySelector('#' + config);
-        let clone = document.importNode(template.content, true);
+        var template = document.querySelector('#' + config);
+        var clone = document.importNode(template['content'], true);
         /// ambil tag <modal-title> untuk judul
-        let title = $(clone).find('modal-title').html();
+        var title = $(clone).find('modal-title').html();
         /// persiapkan button
-        let $buttons = [];
-        let okElements = $(clone).find('modal-ok');
+        var $buttons = [];
+        var okElements = $(clone).find('modal-ok');
         okElements.each(function (i, okElement) {
-            let btnConfig = { className: "btn-primary" };
+            var btnConfig = { className: "btn-primary" };
             /// ambil kelas bila diperlukan
             if (okElement.hasAttribute('class')) {
-                let okClass = okElement.attributes['class'].value;
+                var okClass = okElement.attributes['class'].value;
                 btnConfig.className = okClass;
             }
             /// ambil tag <modal-ok> untuk tulisan button OK
-            let okLabel = okElement.innerHTML;
+            var okLabel = okElement.innerHTML;
             btnConfig['html'] = okLabel;
             /// value
-            let value = true;
+            var value = true;
             if (okElement.hasAttribute('value')) {
                 value = okElement.attributes['value'].value;
             }
@@ -95,20 +109,15 @@ function modal(config, model, counter) {
             $buttons.push({ className: "btn-primary", value: true, html: "Ok" });
         }
         /// ambil tag <modal-body> untuk content
-        let body = $(clone).find('modal-body').html();
+        var body = $(clone).find('modal-body').html();
         element.find('.modal-title').html(title);
         element.find('.modal-body').html(body);
         /// set class untuk modal-dialog bila ada
         element.find('.modal-dialog').addClass(template.className);
         $root.html(element);
-        let bsModal = $root.find('.modal');
+        var bsModal = $root.find('.modal');
         model.ok = function (d) {
-            if (d) {
-                resolve(d.value);
-            }
-            else {
-                resolve(true);
-            }
+            resolve(d.value);
             bsModal.modal('hide');
         };
         model.$buttons = $buttons;
