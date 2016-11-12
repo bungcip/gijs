@@ -2,7 +2,7 @@
 
 export {replace} from './string';
 export {url} from './url';
-export {modal} from './modal';
+export * from './modal';
 export * from './ajax';
 
 import {urlConfig} from './url';

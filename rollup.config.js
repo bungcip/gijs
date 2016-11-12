@@ -19,6 +19,7 @@ export default {
   sourceMap: (process.env.NODE_ENV === 'test') ? 'inline' : true,
   moduleId,
   moduleName,
+  banner: '/* gi.js ' + pkg.version + ', Knockout Helper Libraries  */',
 
   /// global dependecies
   globals: {

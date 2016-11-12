@@ -47,15 +47,24 @@
   </div>
 </div>
 
-	<a href="javascript: click()">Click</a>
+	<a href="javascript: clickModal()">Click Modal</a>
+	<a href="javascript: clickAlert()">Click Alert</a>
 
 	<script>
-        function click(){
+        function clickModal(){
             console.log("Click");
             gi.modal("example-modal").then(function(){
                 console.log("Ok Clicked");
             });
         }
+
+        function clickAlert(){
+            console.log("Alert");
+            gi.alert("example-modal").then(function(){
+                console.log("Ok Clicked");
+            });
+        }
+        
     </script>
 </body>
 
